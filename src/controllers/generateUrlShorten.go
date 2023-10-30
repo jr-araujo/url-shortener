@@ -34,7 +34,7 @@ func (ctlr *controller) GenerateUrlShorten(ctx *gin.Context) {
 	generatedNumber := new(big.Int).SetBytes(urlHashBytes).Uint64()
 	code := base58Encoded([]byte(fmt.Sprintf("%d", generatedNumber)))[:6]
 
-	shortenUrlToPersist := models.ShortenUrl{Code: code, Original_url: input.Url, Access_number: 0}
+	shortenUrlToPersist := models.ShortenUrl{Code: code, Original: input.Url, Access_number: 0}
 
 	// Append to the Books table
 	if result := ctlr.DB.Create(&shortenUrlToPersist); result.Error != nil {

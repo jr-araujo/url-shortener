@@ -6,12 +6,11 @@ type InputUrl struct {
 
 type ShortenUrl struct {
 	Id            int32  `json:"id" gorm:"primary"`
-	Code          string `json:"code"`
-	Original_url  string `json:"original"`
-	Shorten_url   string `json:"shorten_url"`
-	Access_number int32  `json:"access_number"`
+	Code          string `json:"code" gorm:"code"`
+	Original      string `json:"original" gorm:"original"`
+	Access_number int32  `json:"access_number" gorm:"access_number"`
 }
 
 func (ShortenUrl) TableName() string {
-	return "shorten_urls"
+	return "shorten_url"
 }
