@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"urlshortener.com/devgym/jr/models"
 )
 
 func (ctlr *controller) RedirectOriginalUrl(ctx *gin.Context) {
@@ -11,10 +12,19 @@ func (ctlr *controller) RedirectOriginalUrl(ctx *gin.Context) {
 
 	if code == "" {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "Code not found", //post.ErrIdEmpty,
+			"error": "Code not found",
 		})
 		return
 	}
 
-	ctx.Redirect(http.StatusMovedPermanently, "http://www.google.com/")
+	var shortenUrl models.ShortenUrl
+
+	if err := ctlr.DB.Where("code = ?", code).First(&shortenUrl).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "Code not found",
+		})
+		return
+	}
+
+	ctx.Redirect(http.StatusMovedPermanently, shortenUrl.Original)
 }
