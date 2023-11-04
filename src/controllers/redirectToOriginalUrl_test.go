@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"urlshortener.com/devgym/jr/models"
 	database "urlshortener.com/devgym/jr/repository"
 )
 
@@ -51,9 +54,21 @@ func TestRedirectToOriginal_ShouldBeSuccessful_WhenPassingValidCode(t *testing.T
 	r := SetUpRouter()
 	DB := database.Init()
 	ctlr := New(DB)
+	r.POST("/shorteners", ctlr.GenerateUrlShorten)
 	r.GET("/shorteners/:code", ctlr.RedirectOriginalUrl)
 
-	req, _ := http.NewRequest("GET", "/shorteners/H7528o", nil) //bytes.NewBuffer(jsonValue)
+	inputUrl := models.InputUrl{
+		Url: "https://www.test.com",
+	}
+	jsonValue, _ := json.Marshal(inputUrl)
+	reqPost, _ := http.NewRequest("POST", "/shorteners", bytes.NewBuffer(jsonValue))
+	wPost := httptest.NewRecorder()
+	r.ServeHTTP(wPost, reqPost)
+
+	var shortenUrlResponse models.ShortenUrlOutput
+	json.Unmarshal(wPost.Body.Bytes(), &shortenUrlResponse)
+
+	req, _ := http.NewRequest("GET", "/shorteners/"+shortenUrlResponse.Code, nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
