@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/itchyny/base58-go"
@@ -30,7 +31,7 @@ func (ctlr *controller) GenerateUrlShorten(ctx *gin.Context) {
 		return
 	}
 
-	urlHashBytes := sha256Of(input.Url)
+	urlHashBytes := sha256Of(input.Url + time.Now().String())
 	generatedNumber := new(big.Int).SetBytes(urlHashBytes).Uint64()
 	code := base58Encoded([]byte(fmt.Sprintf("%d", generatedNumber)))[:6]
 
@@ -42,7 +43,10 @@ func (ctlr *controller) GenerateUrlShorten(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"shortenUrl": "https://jr.com/" + code})
+	var shortenUrlOutput models.ShortenUrlOutput
+	shortenUrlOutput.Code = code
+	shortenUrlOutput.ShortenUrl = "https://jr.com/" + code
+	ctx.JSON(http.StatusCreated, shortenUrlOutput)
 }
 
 func sha256Of(input string) []byte {

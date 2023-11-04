@@ -4,6 +4,11 @@ type InputUrl struct {
 	Url string
 }
 
+type ShortenUrlOutput struct {
+	Code       string
+	ShortenUrl string
+}
+
 type ShortenUrl struct {
 	Id            int32  `json:"id" gorm:"primary"`
 	Code          string `json:"code" gorm:"code"`
