@@ -26,7 +26,7 @@ func (ctlr *controller) GenerateUrlShorten(ctx *gin.Context) {
 	}
 
 	if input.Url[0:4] != "http" && input.Url[0:5] != "https" {
-		ctx.JSON(http.StatusLengthRequired, gin.H{"error": "Mal-formed URL"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Mal-formed URL"})
 		return
 	}
 
@@ -36,13 +36,13 @@ func (ctlr *controller) GenerateUrlShorten(ctx *gin.Context) {
 
 	shortenUrlToPersist := models.ShortenUrl{Code: code, Original: input.Url, Access_number: 0}
 
-	// Append to the Books table
+	// Insert generated url
 	if result := ctlr.DB.Create(&shortenUrlToPersist); result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "https://"+code)
+	ctx.JSON(http.StatusCreated, gin.H{"shortenUrl": "https://jr.com/" + code})
 }
 
 func sha256Of(input string) []byte {
